@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
             "javascript:(function () { " +
             "if (window.eruda) { window.eruda.show(); return; } " +
             "var script = document.createElement('script'); " +
-            "script.src = '//cdn.jsdelivr.net/npm/eruda'; " +
+            "script.src = 'https://cdn.jsdelivr.net/npm/eruda'; " +
             "document.body.appendChild(script); " +
             "script.onload = function () { eruda.init(); eruda.show(); }; " +
             "})();";
@@ -54,18 +54,15 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         swipeRefresh = findViewById(R.id.swipeRefresh);
 
-        // Configure WebView Settings
+        // Configure WebView Settings - Clean & Standard configuration
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
-        webSettings.setAllowFileAccess(true);
-        webSettings.setAllowContentAccess(true);
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
-        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
         // Enable Remote Debugging for Chrome inspect (USB)
         WebView.setWebContentsDebuggingEnabled(true);
@@ -83,8 +80,6 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
                 swipeRefresh.setRefreshing(false);
-                // Auto inject Eruda on page load
-                injectEruda();
             }
 
             @Override
