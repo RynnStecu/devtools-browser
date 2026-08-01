@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Top Bar Navigation -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#1E1E2E"
+        android:padding="6dp"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_previous"
+            android:tint="#FFFFFF"
+            android:contentDescription="Back" />
+
+        <ImageButton
+            android:id="@+id/btnForward"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_next"
+            android:tint="#FFFFFF"
+            android:contentDescription="Forward" />
+
+        <EditText
+            android:id="@+id/etUrl"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="#2B2B3B"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#A0A0B0"
+            android:hint="Search or enter URL..."
+            android:imeOptions="actionGo"
+            android:inputType="textUri"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:textSize="14sp"
+            android:singleLine="true" />
+
+        <ImageButton
+            android:id="@+id/btnGo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_search"
+            android:tint="#FFFFFF"
+            android:contentDescription="Go" />
+
+        <Button
+            android:id="@+id/btnToggleDevTools"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="DEV"
+            android:textSize="11sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#FF0055"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:visibility="gone"
+        android:progressTint="#00FFCC" />
+
+    <!-- WebView Content -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <WebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</LinearLayout>
