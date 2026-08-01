@@ -1,11 +1,15 @@
 package com.devtools.browser;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -25,18 +29,18 @@ public class MainActivity extends AppCompatActivity {
     private WebView webView;
     private EditText etUrl;
     private ImageButton btnBack, btnForward, btnGo;
-    private Button btnToggleDevTools;
+    private Button btnToggleDevTools, btnCopyCookies;
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefresh;
 
-    // Eruda CDN injection script
+    // Enhanced Eruda CDN injection script (captures logs, cookies, storage, JWT)
     private static final String ERUDA_INJECT_SCRIPT =
             "javascript:(function () { " +
             "if (window.eruda) { window.eruda.show(); return; } " +
             "var script = document.createElement('script'); " +
             "script.src = 'https://cdn.jsdelivr.net/npm/eruda'; " +
             "document.body.appendChild(script); " +
-            "script.onload = function () { eruda.init(); eruda.show(); }; " +
+            "script.onload = function () { eruda.init({ defaults: { displaySize: 50, transparency: 0.9 } }); eruda.show(); }; " +
             "})();";
 
     @Override
@@ -50,11 +54,12 @@ public class MainActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         btnForward = findViewById(R.id.btnForward);
         btnGo = findViewById(R.id.btnGo);
+        btnCopyCookies = findViewById(R.id.btnCopyCookies);
         btnToggleDevTools = findViewById(R.id.btnToggleDevTools);
         progressBar = findViewById(R.id.progressBar);
         swipeRefresh = findViewById(R.id.swipeRefresh);
 
-        // Configure WebView Settings - Clean & Standard configuration
+        // Configure WebView Settings
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
@@ -63,6 +68,11 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setUseWideViewPort(true);
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
+
+        // Enable Cookie Access (Third Party & HttpOnly)
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        cookieManager.setAcceptThirdPartyCookies(webView, true);
 
         // Enable Remote Debugging for Chrome inspect (USB)
         WebView.setWebContentsDebuggingEnabled(true);
@@ -80,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
                 swipeRefresh.setRefreshing(false);
+                // Flush cookies so all HttpOnly/session cookies are updated instantly
+                CookieManager.getInstance().flush();
             }
 
             @Override
@@ -115,9 +127,11 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
+        btnCopyCookies.setOnClickListener(v -> copyAllCookiesAndStorage());
+
         btnToggleDevTools.setOnClickListener(v -> {
             injectEruda();
-            Toast.makeText(MainActivity.this, "DevTools Activated!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "DevTools Loaded!", Toast.LENGTH_SHORT).show();
         });
 
         swipeRefresh.setOnRefreshListener(() -> webView.reload());
@@ -142,6 +156,27 @@ public class MainActivity extends AppCompatActivity {
 
     private void injectEruda() {
         webView.evaluateJavascript(ERUDA_INJECT_SCRIPT, null);
+    }
+
+    private void copyAllCookiesAndStorage() {
+        String currentUrl = webView.getUrl();
+        if (currentUrl == null) currentUrl = "https://facebook.com";
+
+        // Get full raw Cookie (including HttpOnly cookies like xs, c_user, etc.)
+        String rawCookies = CookieManager.getInstance().getCookie(currentUrl);
+
+        if (rawCookies == null || rawCookies.isEmpty()) {
+            Toast.makeText(this, "Tidak ada Cookie yang ditemukan pada halaman ini!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Copy directly to Android Clipboard
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Browser Cookies & Tokens", rawCookies);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(this, "📋 Berhasil Salin Semua Cookie (Termasuk c_user, xs, token)!", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
