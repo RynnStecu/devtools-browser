@@ -1,4 +1,4 @@
-package com.devtools.browser;
+package com.kyuu.imupp;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
